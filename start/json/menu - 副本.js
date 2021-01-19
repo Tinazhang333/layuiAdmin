@@ -8,12 +8,6 @@ var $ = layui.$,
 		table = layui.table;
 
 
-		alert(111111);
-
-
-
-
-
 
 
 
