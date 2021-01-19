@@ -1,0 +1,172 @@
+<title>主页二</title>
+
+<div class="layui-card layadmin-header">
+	<div class="layui-breadcrumb" lay-filter="breadcrumb">
+		<a lay-href="">主页</a>
+		<a><cite>角色管理</cite></a>
+	</div>
+</div>
+<div class="layui-fluid">
+	<div class="layui-card">
+		<div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="layadmin-userfront-formlist">
+			<div class="layui-form-item">
+				<div class="layui-inline">
+					<label class="layui-form-label">角色名</label>
+					<div class="layui-input-block">
+						<input type="text" name="roleName" placeholder="请输入" autocomplete="off" class="layui-input">
+					</div>
+				</div>
+
+				<div class="layui-inline">
+					<button class="layui-btn layuiadmin-btn-useradmin" lay-submit lay-filter="LAY-user-front-search">
+						<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+					</button>
+				</div>
+
+			</div>
+		</div>
+
+		<div class="layui-card-body">
+			<div style="padding-bottom: 10px;">
+				<button class="layui-btn layuiadmin-btn-useradmin" data-type="batchdel">删除</button>
+				<button class="layui-btn layuiadmin-btn-useradmin" data-type="add">添加</button>
+			</div>
+
+			<table id="LAY-user-back-role2" lay-filter="LAY-user-back-role2"  ></table>
+
+			<script type="text/html" id="zizeng">
+				{{d.LAY_TABLE_INDEX+1}}
+		   </script>
+
+			<script type="text/html" id="table-useradmin-role">
+				<a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+						     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+						</script>
+						
+		</div>
+		<div class="layui-card-body">
+		  <!-- <div class="layui-btn-container"> -->
+		    <!-- <button type="button" class="layui-btn layui-btn-sm" lay-demo="getChecked">获取选中节点数据</button> -->
+		    <!-- <button type="button" class="layui-btn layui-btn-sm" lay-demo="setChecked">勾选指定节点</button> -->
+		    <!-- <button type="button" class="layui-btn layui-btn-sm" lay-demo="reload">重载实例</button> -->
+		  <!-- </div> -->
+		  <div id="test-tree-demo1"></div>
+		</div>
+	</div>
+	
+</div>
+
+<script>
+	layui.use('useradmin-role', layui.factory('useradmin-role')).use(['admin', 'useradmin-role', 'table', 'commonReq','tree', 'util'],
+		function() {
+			
+			var $ = layui.$,
+				admin = layui.admin,
+				commonReq = layui.commonReq,
+				view = layui.view,
+				table = layui.tableRequest,
+				table = layui.table,
+				form = layui.form;
+
+			form.render(null, 'layadmin-userfront-formlist');
+
+			//监听搜索
+			form.on('submit(LAY-user-front-search)', function(data) {
+console.log(data);
+				var field = data.field;
+console.log(field);
+                var uri = '/sysuser/sys_role/findAll';
+                		var method = 'get';
+                		var res = {};
+                		res.columnFilters = {
+                					keywords: field.roleName
+                				};
+                		console.log(res);
+				//执行重载
+				table.reload('LAY-user-back-role2', {
+					where: res
+				});
+			});
+
+			//事件
+			var active = {
+				batchdel: function() {
+					var checkStatus = table.checkStatus('LAY-user-back-role2'),
+						checkData = checkStatus.data; //得到选中的数据
+	console.log(checkData);
+					if (checkData.length === 0) {
+						return layer.msg('请选择数据');
+					}
+					layer.confirm('是否确认删除', function(index) {
+						layer.close(index);
+						let ids = [];
+						for (var i = 0; i < checkData.length; i++) {
+							ids.push(checkData[i].roleId);
+						}
+
+	console.log(checkData.roleId);
+						var uri = '/sysuser/sys_role/delete';
+						var data = JSON.stringify(ids);
+						var method = 'post';
+						commonReq.adminReq(uri, data, method, null);
+						
+						layui.table.reload('LAY-user-back-role2'); //重载表格
+						layer.close(index);
+						layer.msg('已删除');
+					});
+
+				},
+				add: function() {
+					admin.popup({
+						title: '添加用户',
+						area: ['490px', '440px'],
+						id: 'LAY-popup-user-addrole',
+						success: function(layero, index) {
+							view(this.id).render('user/administrators/roleform').done(function() {
+								form.render(null, 'layuiadmin-form-useradmin');
+
+								//监听提交
+								form.on('submit(LAY-user-back-submit)', function(data) {
+									var uri = '/sysuser/sys_role/save';
+									var field = data.field; //获取提交的字段
+									console.log(field);
+									var date = JSON.stringify(field);
+									console.log(date);
+									var method = 'post';
+									var done = function(res) {
+										console.log(res);
+										if (res.status == 200) {
+											layer.closeAll('loading');
+											layer.load(2);
+											layer.msg("添加成功", {
+												icon: 6
+											});
+											setTimeout(function() {
+												layer.closeAll(); //关闭所有的弹出层
+											}, 1000);
+
+										} else {
+											layer.msg("添加失败", {
+												icon: 5
+											});
+										}
+									}
+									commonReq.adminReq(uri, date, method, done);
+									layui.table.reload('LAY-user-back-role2'); //重载表格
+									layer.close(index); //执行关闭 
+								});
+							});
+						}
+					});
+				}
+			};
+
+			$('.layui-btn.layuiadmin-btn-useradmin').on('click', function() {
+				var type = $(this).data('type');
+				active[type] ? active[type].call(this) : '';
+			});
+		});
+</script>
+
+
+

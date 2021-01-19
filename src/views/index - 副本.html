@@ -1,0 +1,231 @@
+
+		  <div class="layui-fluid">
+		    <div class="layui-card">
+		      <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="layadmin-userfront-formlist">
+		        <div class="layui-form-item">
+		          <div class="layui-inline">
+		            <label class="layui-form-label">ID</label>
+		            <div class="layui-input-block">
+		              <input type="text" name="id" placeholder="请输入" autocomplete="off" class="layui-input">
+		            </div>
+		          </div>
+		          <div class="layui-inline">
+		            <label class="layui-form-label">用户名</label>
+		            <div class="layui-input-block">
+		              <input type="text" name="username" placeholder="请输入" autocomplete="off" class="layui-input">
+		            </div>
+		          </div>
+		         <!-- <div class="layui-inline">
+		            <label class="layui-form-label">邮箱</label>
+		            <div class="layui-input-block">
+		              <input type="text" name="email" placeholder="请输入" autocomplete="off" class="layui-input">
+		            </div>
+		          </div> -->
+		          <!-- <div class="layui-inline">
+		            <label class="layui-form-label">性别</label>
+		            <div class="layui-input-block">
+		              <select name="sex">
+		                <option value="0">不限</option>
+		                <option value="1">男</option>
+		                <option value="2">女</option>
+		              </select>
+		            </div>
+		          </div>
+				  -->
+				  
+		          <div class="layui-inline">
+		            <button class="layui-btn layuiadmin-btn-useradmin" lay-submit lay-filter="LAY-user-front-search">
+		              <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+		            </button>
+		          </div>
+				  
+				  
+		        </div>
+		      </div>
+		      
+		      <div class="layui-card-body">
+		        <div style="padding-bottom: 10px;">
+		          <button class="layui-btn layuiadmin-btn-useradmin" data-type="batchdel">删除</button>
+		          <button class="layui-btn layuiadmin-btn-useradmin" data-type="add">添加</button>
+		        </div>
+		        
+		        <table id="LAY-user-manage" lay-filter="LAY-user-manage"></table>
+		        <script type="text/html" id="imgTpl"> 
+		          <img style="display: inline-block; width: 50%; height: 100%;" src= {{ d.avatar }}>
+		        </script> 
+		        <script type="text/html" id="table-useradmin-webuser">
+		          <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+		          <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+		        </script>
+		      </div>
+		    </div>
+		  </div>
+		  
+		  <script>
+		  layui.use('useradmin', layui.factory('useradmin')).use(['admin', 'useradmin', 'table','commonReq'], function(){
+		    var $ = layui.$
+		    ,admin = layui.admin
+			,commonReq = layui.commonReq
+		    ,view = layui.view
+		    ,table = layui.tableRequest
+		    ,form = layui.form;
+		    
+		    form.render(null, 'layadmin-userfront-formlist');
+		    
+		    //监听搜索
+		    form.on('submit(LAY-user-front-search)', function(data){
+		      var field = data.field;
+		      
+		      //执行重载
+		      table.reload('LAY-user-manage', {
+		        where: field
+		      });
+		    });
+		  
+		    //事件
+		    var active = {
+		      batchdel: function(){
+		        var checkStatus = table.checkStatus('LAY-user-manage')
+		        ,checkData = checkStatus.data; //得到选中的数据
+		  
+		        if(checkData.length === 0){
+		          return layer.msg('请选择数据');
+		        }
+		        
+		        layer.prompt({
+		          formType: 1
+		          ,title: '敏感操作，请验证口令'
+		        }, function(value, index){
+		          layer.close(index);
+		          
+		          layer.confirm('确定删除吗？', function(index) {
+		            
+		            //执行 Ajax 后重载
+		            /*
+		            admin.req({
+		              url: 'xxx'
+		              //,……
+		            });
+		            */
+		            table.reload('LAY-user-manage');
+		            layer.msg('已删除');
+		          });
+		        });
+		      }
+		      ,add: function(){
+		        admin.popup({
+		          title: '添加用户'
+		          ,area: ['550px', '500px']
+		          ,id: 'LAY-popup-user-add'
+		          ,success: function(layero, index){
+		            view(this.id).render('user/user/userform').done(function(){
+						var uri = '/system/school_info/getSchoolList';
+						var data = null;
+						var method = "post";
+						var selectschoolId = obj.data.schoolId;
+						var loadDeptSelect = function(school) {
+							console.log(school.data)
+							form.render();
+							var option = "<option value=''>请选择部门名称</option>"; //初始化option选项
+							var str = "";
+							var data = school.data;
+							for (i = 0; i < data.length; i++) {
+								option += "<option value=''+data[i].dept_id+ ";
+								if (data[i].id == selectschoolId) {
+									option += "selected";
+								}
+								option += ">" + data[i].name + "</option>";
+								$("#typeselectBox").html(option);
+							}
+							form.render('select');
+							
+						}
+						
+						commonReq.adminReq(uri, data, method, loadDeptSelect);
+						
+						
+						
+						
+						
+						
+						
+		              form.render(null, 'layuiadmin-form-useradmin');
+		              
+		              //监听提交
+		              form.on('submit(LAY-user-front-submit)', function(data){
+						  
+		                var field= data.field; //获取提交的字段
+						var date = JSON.stringify(field);
+						var uri = '/sysuser/sys_user/save';
+						var method = 'post';
+						var done = function(res) {
+							if (res.status == 200) {
+								layer.closeAll('loading');
+								layer.load(2);
+								layer.msg("添加成功", {
+									icon: 6
+								});
+								setTimeout(function() {
+									layer.closeAll(); //关闭所有的弹出层
+									// table.reload("Users");
+								}, 1000);
+						
+							} else {
+								layer.msg("添加失败", {
+									icon: 5
+								});
+							}
+						}
+						commonReq.adminReq(uri, date, method, done);
+					
+		                //提交 Ajax 成功后，关闭当前弹层并重载表格
+		                //$.ajax({});
+		                layui.table.reload('LAY-user-manage'); //重载表格
+		                layer.close(index); //执行关闭 
+		              });
+		            });
+		          }
+		        });
+		      }
+		    };
+		    
+		    $('.layui-btn.layuiadmin-btn-useradmin').on('click', function(){
+		      var type = $(this).data('type');
+		      active[type] ? active[type].call(this) : '';
+		    });
+		  });
+		  </script>
+        
+		 
+		  
+		
+		  
+      
+      
+    </div>
+    
+   
+    
+  </div>
+</div>
+
+
+<script>
+//加载 controller 目录下的对应模块
+/*
+
+  小贴士：
+    这里 console 模块对应 的 console.js 并不会重复加载，
+    然而该页面的视图则是重新插入到容器，那如何保证能重新来控制视图？有两种方式：
+      1): 借助 layui.factory 方法获取 console 模块的工厂（回调函数）给 layui.use
+      2): 直接在 layui.use 方法的回调中书写业务代码，即:
+          layui.use('console', function(){ 
+            //同 console.js 中的 layui.define 回调中的代码 
+          });
+          
+  这里我们采用的是方式1。其它很多视图中采用的其实都是方式2，因为更简单些，也减少了一个请求数。
+  
+*/
+layui.use('console', layui.factory('console'));
+</script>
+

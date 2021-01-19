@@ -1,0 +1,145 @@
+
+
+<div class="layui-form" lay-filter="layuiadmin-form-admin" style="padding: 20px 30px 0 0;">
+  <div class="layui-form-item">
+    <label class="layui-form-label">学校名称</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="name" value="{{ d.params.name || '' }}" lay-verify="required" placeholder="请输入学校名称" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  
+  <div class="layui-form-item">
+    <label class="layui-form-label">注册新用户</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="regiestNewUser" value="{{ d.params.regiestNewUser || '' }}" lay-verify="required" placeholder="请输入学校名称" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  
+  <div class="layui-form-item">
+    <label class="layui-form-label">找回密码</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name=" " value="{{ d.params.findSecret || '' }}"  autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  
+  <div class="layui-form-item">
+    <label class="layui-form-label">一键认证</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+		 
+        <input type="text" name=" "   value="{{ d.params.keyAuthentication || '' }}" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  
+  <div class="layui-form-item">
+    <label class="layui-form-label">用户充值</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="" value="{{ d.params.userRecharge || '' }}"  autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  
+  <div class="layui-form-item">
+    <label class="layui-form-label">秘钥</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+		  // value="{{ d.params.userRecharge || '' }}"
+        <input type="text" name=""   autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  
+  <div class="layui-form-item">
+    <label class="layui-form-label">查询余额</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name=" " value="{{ d.params.balanceInquiry || '' }}"  autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  
+  <div class="layui-form-item">
+    <label class="layui-form-label">退出登录</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name=" " value="{{ d.params.logoutLogin || '' }}"  autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  
+  <div class="layui-form-item">
+    <label class="layui-form-label">vlan</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name=" "  value="{{ d.params.vlan || '' }}"  placeholder="请输入学校名称" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  
+  <div class="layui-form-item">
+    <label class="layui-form-label">line</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name=" "   value="{{ d.params.line || '' }}"  autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">学校总人数</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name=" "   value="{{ d.params.totalPeopleNum || '' }}"  autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">助手地址</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name=" "    value="{{ d.params.schoolServiceUrl || '' }}"  autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">日志端口</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name=" "   value="{{ d.params.schoolUserLogPort || '' }}" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  
+  
+  
+  <div class="layui-form-item">
+    <label class="layui-form-label"></label>
+    <div class="layui-input-inline">
+      <input type="button" lay-submit lay-filter="LAY-user-back-submit" value="确认" class="layui-btn">
+    </div>
+	<div class="layui-input-inline">
+	 <input type="button"  onclick="clickme()" lay-filter="LAY-user-back-submit" value="取消" class="layui-btn">
+	</div>
+  </div>
+</div>
+<script type="text/javascript">
+	 function clickme(){
+		 	// layer.close(index);
+	        layer.closeAll(); //疯狂模式，关闭所有层
+	    }
+</script>
+
+<script>
+layui.use(['admin', 'form'], function(){
+  var $ = layui.$
+  ,form = layui.form;
+  
+});
+</script>

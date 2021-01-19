@@ -1,0 +1,245 @@
+<title>
+	主页一</title>
+
+<div class="layui-card layadmin-header">
+	<div class="layui-breadcrumb" lay-filter="breadcrumb">
+		<a lay-href="">主页</a>
+		<a><cite>菜单管理</cite></a>
+	</div>
+</div>
+
+<div class="layui-fluid">
+	<div class="layui-card">
+		<div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="layadmin-useradmin-formlist">
+			<div class="layui-form-item">
+				<div class="layui-inline">
+					<label class="layui-form-label">名称</label>
+					<div class="layui-input-block">
+						<input type="text" name="name" placeholder="请输入学校名称" autocomplete="off" class="layui-input">
+					</div>
+				</div>
+				<div class="layui-inline">
+					<button class="layui-btn layuiadmin-btn-admin" lay-submit lay-filter="LAY-user-front-search">
+						<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="layui-card-body">
+			<div style="padding-bottom: 10px;">
+				<!-- <button class="layui-btn layuiadmin-btn-admin" lay-event="delete"><i class="layui-icon">&#xe640;</i>删除</button> -->
+				<button class="layui-btn layuiadmin-btn-admin" data-type="batchdel">删除</button>
+				<button class="layui-btn layuiadmin-btn-admin" data-type="add">添加</button>
+				<!-- <button class="layui-btn layuiadmin-btn-admin" lay-event="add"><i class="layui-icon">&#xe654;</i>新增</button> -->
+			</div>
+
+			<!-- <table id="LAY-user-back-menu2" class="layui-hide" lay-filter="LAY-user-back-menu2"></table> -->
+			<table class="layui-hide" id="menu" lay-filter="menu"></table>
+			<script type="text/html" id="zizeng">
+				{{d.LAY_TABLE_INDEX+1}}
+							</script>
+
+
+			<script type="text/html" id="table-useradmin-admin">
+				<a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+							 
+						     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+						</script>
+
+			<script type="text/html" id="toolbarDemo">
+				<div class="layui-btn-group">
+			        <button class="layui-btn layui-btn-sm" lay-event="add"><i class="layui-icon">&#xe654;</i>新增</button>
+			        <button class="layui-btn layui-btn-sm" lay-event="updata"><i class="layui-icon">&#xe642;</i>修改</button>
+			        <button class="layui-btn layui-btn-sm" lay-event="delete"><i class="layui-icon">&#xe640;</i>删除</button>
+			        <button class="layui-btn layui-btn-sm" lay-event="refresh"><i class="layui-icon">&#xe666;</i>刷新</button>
+			    </div>
+			</script>
+
+
+
+		</div>
+	</div>
+</div>
+
+<script>
+	layui.use(['tabletree', 'layer', 'admin','table','tableEdit'], function() {
+		var $ = layui.$,
+			admin = layui.admin,
+			view = layui.view,
+			table = layui.table,
+			// treetable = layui.treetable,
+			tabletree= layui.tabletree,
+			// treeSelect = layui.treeSelect,
+			setter = layui.setter,
+			form = layui.form;
+		form.render(null, 'layadmin-useradmin-formlist');
+
+		//渲染表格
+		var renderTable = function() {
+			// layer.load(2); //加载层
+			treetable.render({
+				height: 'full-160',
+				id: "menu",
+				treeColIndex: 1, //树形组件显示在第几列
+				treeSpid: '0', //最上级的父级id
+				treeIdName: 'id', //id 字段的名称
+				treePidName: 'parentId', //父级节点字段
+				treeDefaultClose: false, //是否默认折叠
+				treeLinkage: false, //父级展开时是否自动展开所有子级
+				elem: '#menu', //
+				// uri: "/sysuser/sys_permission/findMenuTree",
+				url: "/sysuser/sys_permission/findAllMenu",
+				toolbar: '#toolbarDemo',
+				page: false,
+				cols: [
+					[{
+							type: 'radio'
+						},
+						{
+							field: 'id',
+							title: 'ID'
+						},
+						{
+							field: 'name',
+							title: '名称'
+						},
+						{
+							field: 'sort',
+							title: '排序'
+						}
+
+					]
+				],
+				//数据渲染完的回调
+				done: function(res) {
+					alert(111);
+					//关闭加载
+					layer.closeAll('loading');
+				}
+
+			})
+		}
+		renderTable();
+
+		table.on('toolbar(menu)', function(obj) {
+			var checkStatus = table.checkStatus('menu');
+			var data = checkStatus.data;
+			if (obj.event === 'add') {
+				var parentId = data.length == 0 ? 0 : data[0].id;
+				$.get('menu/edit', {
+					parentId: parentId
+				}, function(data) {
+					layer.open({
+						type: 1,
+						title: '新增',
+						area: ['530px'],
+						content: data,
+						btn: ['提交', '退出'],
+						yes: function() {},
+						success: function(layero, index) {
+							layui.use('form', function() {
+								var form = layui.form;
+								layero.addClass('layui-form');
+								var submitBtn = layero.find('.layui-layer-btn0');
+								submitBtn.attr('lay-filter', 'formVerify').attr('lay-submit', '');
+								layero.keydown(function(e) {
+									if (e.keyCode == 13) {
+										submitBtn.click();
+									}
+								});
+
+								form.on('submit(formVerify)', function(data) {
+									$.post('menu/save', data.field, function(result) {
+										if (result.success) {
+											layer.close(index);
+											//刷新，重新渲染表格
+											renderTable();
+										}
+										layer.msg(result.msg, {
+											offset: 'rb'
+										});
+									});
+									return false;
+								});
+							});
+						}
+					})
+				})
+			} else if (obj.event === 'updata') {
+				if (data.length != 1) {
+					layer.msg("请选择一行进行编辑", {
+						offset: 'rb'
+					});
+				} else {
+					var id = data[0].id;
+					$.get('menu/edit', {
+						id: id
+					}, function(data) {
+						layer.open({
+							type: 1,
+							title: '修改',
+							area: ['530px'],
+							content: data,
+							btn: ['提交', '退出'],
+							yes: function() {},
+							success: function(layero, index) {
+								layui.use('form', function() {
+									var form = layui.form;
+									layero.addClass('layui-form');
+									var submitBtn = layero.find('.layui-layer-btn0');
+									submitBtn.attr('lay-filter', 'formVerify').attr('lay-submit', '');
+									layero.keydown(function(e) {
+										if (e.keyCode == 13) {
+											submitBtn.click();
+										}
+									});
+
+									form.on('submit(formVerify)', function(data) {
+										$.post('menu/save', data.field, function(result) {
+											if (result.success) {
+												layer.close(index);
+												//刷新，重新渲染表格
+												renderTable();
+											}
+											layer.msg(result.msg, {
+												offset: 'rb'
+											});
+										});
+										return false;
+									});
+								});
+							}
+						})
+					})
+				}
+			} else if (obj.event === "delete") {
+				if (data.length != 1) {
+					layer.msg("请选择一行进行删除", {
+						offset: 'rb'
+					});
+				} else {
+					var id = data[0].id;
+					layer.confirm('确定删除选定行的数据吗?', function(index) {
+						$.post('menu/delete', {
+							id: id
+						}, function(result) {
+							if (result.success) {
+								layer.close(index);
+								renderTable();
+							}
+							layer.msg(result.msg, {
+								offset: 'rb'
+							});
+						});
+					});
+				}
+			} else if (obj.event === "refresh") {
+				renderTable();
+			}
+
+		})
+
+
+	});
+</script>

@@ -1,0 +1,481 @@
+
+    <div class="layui-row layui-col-space15">
+      <div class="layui-col-md12">
+        <div class="layui-card">
+          <div class="layui-card-header">基本演示</div>
+          <div class="layui-card-body">
+            <div class="layui-btn-container">
+              <button type="button" class="layui-btn layui-btn-sm" lay-demo="getChecked">获取选中节点数据</button>
+              <button type="button" class="layui-btn layui-btn-sm" lay-demo="setChecked">勾选指定节点</button>
+              <button type="button" class="layui-btn layui-btn-sm" lay-demo="reload">重载实例</button>
+            </div>
+            <div id="test-tree-demo1"></div>
+          </div>
+        </div>
+
+        
+      </div>
+    </div>
+
+  <script>
+  layui.use(['admin', 'tree', 'util'], function(){
+    var tree = layui.tree
+    ,layer = layui.layer
+    ,util = layui.util
+    
+    //模拟数据
+    ,data = [{
+      title: '系統管理'
+      ,id: 1
+      ,field: 'name1'
+      ,checked: true
+      ,spread: true
+      ,children: [{
+        title: '用户管理'
+        ,id: 3
+        ,field: 'name11'
+        ,href: 'https://www.layui.com/'
+        ,children: [{
+          title: '查看'
+          ,id: 23
+          ,field: ''
+        },{
+          title: '新增'
+          ,id: 7
+          ,field: ''
+        },
+		{
+		  title: '修改'
+		  ,id: 7
+		  ,field: ''
+		},{
+		  title: '删除'
+		  ,id: 7
+		  ,field: ''
+		},{
+          title: '禁用/启用'
+          ,id: 8
+          ,field: ''
+        }]
+      },{
+        title: '学校管理'
+        ,id: 3
+        ,field: 'name11'
+        ,href: 'https://www.layui.com/'
+        ,children: [{
+          title: '新增'
+          ,id: 23
+          ,field: ''
+        },{
+          title: '修改'
+          ,id: 7
+          ,field: ''
+        },
+		{
+		  title: '删除'
+		  ,id: 7
+		  ,field: ''
+		},{
+		  title: '查询'
+		  ,id: 7
+		  ,field: ''
+		},{
+          title: '复制'
+          ,id: 8
+          ,field: ''
+        }]
+      },{
+        title: '角色管理'
+        ,id: 3
+        ,field: 'name11'
+        ,href: 'https://www.layui.com/'
+        ,children: [{
+          title: '查看'
+          ,id: 23
+          ,field: ''
+        },{
+          title: '新增'
+          ,id: 7
+          ,field: ''
+        },
+		{
+		  title: '修改'
+		  ,id: 7
+		  ,field: ''
+		},{
+		  title: '删除'
+		  ,id: 7
+		  ,field: ''
+		},]
+      },{
+        title: '菜单管理'
+        ,id: 3
+        ,field: 'name11'
+        ,href: 'https://www.layui.com/'
+        ,children: [{
+          title: '新增'
+          ,id: 23
+          ,field: ''
+        },{
+          title: '修改'
+          ,id: 7
+          ,field: ''
+        },
+		{
+		  title: '删除'
+		  ,id: 7
+		  ,field: ''
+		},{
+		  title: '查看'
+		  ,id: 7
+		  ,field: ''
+		},]
+      }
+]
+    },{
+      title: 'app用户'
+      ,id: 2
+      ,field: ''
+      ,spread: true
+      ,children: [{
+        title: '用户管理'
+        ,id: 5
+        ,field: ''
+        ,spread: true
+        ,children: [{
+          title: '启用/禁用'
+          ,id: 11
+          ,field: ''
+        },{
+          title: '查看'
+          ,id: 12
+          ,field: ''
+        }]
+      },{
+        title: '用户反馈'       
+        ,id: 6
+        ,field: ''
+        ,children: [{
+          title: '查询'
+          ,id: 13
+          ,field: ''
+        },{
+          title: '删除'
+          ,id: 14
+          ,field: ''
+          ,disabled: true
+        }]
+      },{
+        title: '用户办卡'       
+        ,id: 6
+        ,field: ''
+        ,children: [{
+          title: '处理'
+          ,id: 13
+          ,field: ''
+        },{
+          title: '查看'
+          ,id: 14
+          ,field: ''
+          ,disabled: true
+        },
+		{
+		  title: '删除'
+		  ,id: 14
+		  ,field: ''
+		  ,disabled: true
+		}]
+      },{
+        title: '异常日志'       
+        ,id: 6
+        ,field: ''
+        ,children: [{
+          title: '查看'
+          ,id: 13
+          ,field: ''
+        },{
+          title: '删除'
+          ,id: 14
+          ,field: ''
+          ,disabled: true
+        },{
+          title: '处理异常'
+          ,id: 14
+          ,field: ''
+          ,disabled: true
+        }]
+      },
+	  ]
+    },{
+      title: 'app设置'
+      ,id: 16
+      ,field: ''
+      ,children: [{
+        title: '办卡活动'
+        ,id: 17
+        ,field: ''
+        ,fixed: true
+        ,children: [{
+          title: '查看'
+          ,id: 18
+          ,field: ''
+        },{
+          title: '上传'
+          ,id: 19
+          ,field: ''
+        }]
+      },{
+        title: '弹框广告'
+        ,id: 27
+        ,field: ''
+        ,children: [{
+          title: '查看'
+          ,id: 28
+          ,field: ''
+        },{
+          title: '新增'
+          ,id: 28
+          ,field: ''
+        },{
+          title: '修改'
+          ,id: 28
+          ,field: ''
+        },
+		{
+          title: '删除'
+          ,id: 29
+          ,field: ''
+        },{
+          title: '展示/隐藏'
+          ,id: 28
+          ,field: ''
+        }]
+      }]
+    },
+	
+	{
+      title: '助手管理'
+      ,id: 16
+      ,field: ''
+      ,children: [{
+        title: '凌云用户'
+        ,id: 17
+        ,field: ''
+        ,fixed: true
+        ,children: [{
+          title: '查看'
+          ,id: 18
+          ,field: ''
+        },{
+          title: '处理'
+          ,id: 19
+          ,field: ''
+        }]
+      }]
+    },{
+      title: '回单管理'
+      ,id: 16
+      ,field: ''
+      ,children: [{
+        title: '回单用户'
+        ,id: 17
+        ,field: ''
+        ,fixed: true
+        ,children: [{
+          title: '新增'
+          ,id: 18
+          ,field: ''
+        },{
+          title: '删除'
+          ,id: 19
+          ,field: ''
+        },{
+          title: '修改'
+          ,id: 19
+          ,field: ''
+        },{
+          title: '查询'
+          ,id: 19
+          ,field: ''
+        },{
+          title: '认证'
+          ,id: 19
+          ,field: ''
+        },{
+          title: '回单'
+          ,id: 19
+          ,field: ''
+        },{
+          title: '充值'
+          ,id: 19
+          ,field: ''
+        },
+		]
+      },
+	  {
+	    title: '回单日志'
+	    ,id: 17
+	    ,field: ''
+	    ,fixed: true
+	    ,children: [{
+	      title: '查看'
+	      ,id: 18
+	      ,field: ''
+	    },
+		]},
+		{
+		  title: '回单统计'
+		  ,id: 17
+		  ,field: ''
+		  ,fixed: true
+		  ,children: [{
+		    title: '查看'
+		    ,id: 18
+		    ,field: ''
+		  },
+				]}
+	  ]
+    },{
+      title: '用户统计'
+      ,id: 16
+      ,field: ''
+      ,children: [{
+        title: '用户统计'
+        ,id: 17
+        ,field: ''
+        ,fixed: true
+        ,children: [{
+          title: '查询'
+          ,id: 18
+          ,field: ''
+        },{
+          title: '删除'
+          ,id: 19
+          ,field: ''
+        },{
+          title: '导入'
+          ,id: 19
+          ,field: ''
+        }
+		]
+      }]
+    },{
+      title: '校麦网维'
+      ,id: 16
+      ,field: ''
+      ,children: [
+		  {
+        title: '客服管理'
+        ,id: 17
+        ,field: ''
+        ,fixed: true
+        ,children: [{
+          title: '新增'
+          ,id: 18
+          ,field: ''
+        },{
+          title: '修改'
+          ,id: 19
+          ,field: ''
+        },{
+          title: '删除'
+          ,id: 19
+          ,field: ''
+        },{
+          title: '上线/下线'
+          ,id: 19
+          ,field: ''
+        },{
+          title: '审核'
+          ,id: 19
+          ,field: ''
+        }
+		]
+      },{
+        title: '设备管理'
+        ,id: 17
+        ,field: ''
+        ,fixed: true
+        ,children: [{
+          title: '查询'
+          ,id: 18
+          ,field: ''
+        },{
+          title: '删除'
+          ,id: 19
+          ,field: ''
+        },{
+          title: '新增'
+          ,id: 19
+          ,field: ''
+        },{
+          title: '修改'
+          ,id: 19
+          ,field: ''
+        }
+		]
+      },{
+        title: '校区管理'
+        ,id: 17
+        ,field: ''
+        ,fixed: true
+        ,children: [{
+          title: '增加'
+          ,id: 18
+          ,field: ''
+        },{
+          title: '删除'
+          ,id: 19
+          ,field: ''
+        },{
+          title: '修改'
+          ,id: 19
+          ,field: ''
+        },{
+          title: '查询'
+          ,id: 19
+          ,field: ''
+        }
+		]
+      },
+	  ]
+    },
+	]
+    
+    //基本演示
+    tree.render({
+      elem: '#test-tree-demo1'
+      ,data: data
+      ,showCheckbox: true  //是否显示复选框
+      ,id: 'test-tree-demoId1'
+      ,isJump: true //是否允许点击节点时弹出新窗口跳转
+	   ,showLine: false  //是否开启连接线
+      ,click: function(obj){
+        var data = obj.data;  //获取当前点击的节点数据
+        layer.msg('状态：'+ obj.state + '<br>节点数据：' + JSON.stringify(data));
+      }
+    });
+    
+    //按钮事件
+    util.event('lay-demo', {
+      getChecked: function(othis){
+        var checkedData = tree.getChecked('test-tree-demoId1'); //获取选中节点的数据
+        
+        layer.alert(JSON.stringify(checkedData), {shade:0});
+        console.log(checkedData);
+      }
+      ,setChecked: function(){
+        tree.setChecked('test-tree-demoId1', [12, 16]); //勾选指定节点
+      }
+      ,reload: function(){
+        //重载实例
+        tree.reload('test-tree-demoId1', {
+          
+        });
+        
+      }
+    });
+	
+   
+  });
+  </script>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>示例demo</title>
+    <link rel="stylesheet" href="layui/css/layui.css">
+</head>
+<body>
+<button type="button" id="btn1" class="layui-btn  layui-btn-primary">添加最上级行</button>
+<button type="button" id="btn2" class="layui-btn  layui-btn-primary">获取勾选数据</button>
+<button type="button" id="btn3" class="layui-btn  layui-btn-primary">获取全部数据</button>
+<button type="button" id="btn4" class="layui-btn  layui-btn-primary">关闭勾选节点</button>
+<button type="button" id="btn5" class="layui-btn  layui-btn-primary">展开勾选节点</button>
+<button type="button" id="btn6" class="layui-btn  layui-btn-primary">关闭所有子叶节点</button>
+<button type="button" id="btn7" class="layui-btn  layui-btn-primary">展开所有子叶节点</button>
+<button type="button" id="btn8" class="layui-btn  layui-btn-primary">获取表格树配置</button>
+<button type="button" id="btn9" class="layui-btn  layui-btn-primary">重载表格树</button>
+<button type="button" id="btn10" class="layui-btn  layui-btn-primary">删除选中行</button>
+<table class="layui-hide" id="tableId" lay-filter="tableEvent"></table>
+</body>
+<script src="layui/layui.js"></script>
+<script>
+    layui.config({
+        base: 'module/'
+    }).extend({
+        tableEdit:'js/tableEdit'  //表格树依赖我另外写的tableEdit模块，本项目就有。
+        ,tableTree:'js/tableTree'
+    }).use(['table','layer',"tableTree"], function () {
+        var table = layui.table
+            ,$ = layui.$
+            ,tableTree = layui.tableTree;
+        var params = [
+                    {name:1,value:"张三1"}
+                    ,{name:2,value:"张三2"}
+                    ,{name:3,value:"张三3"}
+                    ,{name:4,value:"张三4"}
+                    ,{name:5,value:"张三5"}
+                    ];
+        function templet(d,field){
+            if(!d[field])return '';
+            if(typeof d[field] === 'string')return d[field];
+            if(!Array.isArray(d[field]))return d[field].value ? d[field].value : '';
+            var str = [];
+            d[field].forEach(function (e) {str.push(e.value)});
+            return str.join(' || ');
+        }
+        var treeTable = tableTree.render({
+            elem: '#tableId'
+            ,id:'tableTree'
+            ,url:'module/json/data.json'
+            ,height: 'full-90'
+            ,page: true
+            ,treeConfig:{ //表格树所需配置
+                showField:'name' //表格树显示的字段
+                ,treeid:'id' //treeid所对应字段的值在表格数据中必须是唯一的，且不能为空。
+                ,treepid:'pid'//父级id字段名称
+                ,iconClass:'layui-icon-triangle-r' //小图标class样式 窗口图标 layui-icon-layer
+            }
+            ,cols: [[
+                {type:'checkbox'}
+                ,{field:'name',title: 'name',width:259}
+                ,{field:'id',title:'id',width:120,sort:true}
+                ,{field:'danxuan',align:'center',event:'danxuan'
+                    ,config:{type:'select',data:params}
+                    ,title: '单选',width:120,templet:templet
+                }
+                ,{field:'duoxuan', title: '多选',event:'duoxuan'
+                    ,config:{type:'select',data:params,enabled:true}
+                    ,width:120,templet:templet
+                }
+                ,{field:'birthday', title: '生日',width:120,event:'duoxuan'
+                    ,config:{type:'date',dateType:'date'},templet:templet
+                }
+                ,{field:'aihao', title: '爱好',width:120,event:'aihao'
+                    ,config:{type:'input'},templet:templet
+                }
+            ]]
+        });
+
+        /**
+        /**表格的增删改都会回调此方法
+         * 与table.on(tool(lay-filter))用法一致。
+         **/
+        treeTable.on('tool(tableEvent)',function (obj) {
+            var field = obj.field; //单元格字段
+            var value = obj.value; //修改后的值
+            var data = obj.data; //当前行数据
+            var event = obj.event; //当前单元格事件属性值
+            //event为del为删除 add则新增 edit则修改。这个三个值固定死了，切莫定义与之三个重复的event。
+            if(event !== 'del' && event !== 'add' ){
+                var update = {};
+                update[field] = value;
+                obj.update(update);
+                console.log(obj)
+            }
+
+            if(event === 'del'){
+                obj.del();
+            }
+            if(event === 'add'){
+                //可ajax异步请求后台,后台返回数据后用 obj.add(,rs) 进行回调生成表格树。
+                setTimeout(function () {
+                    var rs = [
+                        {"id":11,"name":"张三11","treeList":[{"id":14,"name":"张三14","treeList":[{"id":15,"name":"张三15","danxuan":null,"duoxuan":[{"name":1,"value": "张三1"},{"name":2,"value": "张三2"}],"birthday":""}],"danxuan":null,"duoxuan":[{"name":1,"value": "张三1"},{"name":2,"value": "张三2"}],"birthday":""}],"danxuan":null,"duoxuan":[{"name":1,"value": "张三1"},{"name":2,"value": "张三2"}],"birthday":""},
+                        {"id":12,"name":"张三12","danxuan":null,"duoxuan":[{"name":1,"value": "张三1"},{"name":2,"value": "张三2"}],"birthday":""},
+                        {"id":13,"name":"张三13","danxuan":null,"duoxuan":[{"name":1,"value": "张三1"},{"name":2,"value": "张三2"}],"birthday":""}
+                    ];
+                    //在此模拟ajax异步的请求，返回数据调用以下函数。
+                    //该方法新增下级节点，可以直接新表格树。
+                    obj.add(rs);
+                },500);
+            }
+        });
+
+        /**
+         * 表格树排序，与layui进行了整合。
+         */
+        table.on('sort(tableEvent)', function(obj){
+            treeTable.sort({field:obj.field,desc:obj.type === 'desc'})
+        });
+
+        $('button').click(function () {
+            var id = $(this).attr("id");
+            if(id==="btn1"){
+                //data可以为空，为空则创建空行，否则按照data数据生成行
+                var data = {"id":13,"pid":333,"name":"张三13","danxuan":null,"duoxuan":[{"name":1,"value": "张三1"},{"name":2,"value": "张三2"}],"birthday":""};
+                treeTable.addTopRow(data);//该方法生成的行是最上级的行
+            }else if(id === 'btn2') {
+                console.log(treeTable.getCheckedData()); //获取选中行数据
+            }else if(id === 'btn3') {
+                console.log(treeTable.getTableTreeData()); //获取表格树所有数据
+            }else if(id === 'btn4') {
+                treeTable.closeCheckedRows(); // 关闭选中行树节点
+            }else if(id === 'btn5') {
+                treeTable.openCheckedRows(); // 展开选中行树节点
+            }else if(id === 'btn6') {
+                treeTable.closeAllRows();  //关闭所有树节点
+            }else if(id === 'btn7') {
+                treeTable.openAllRows(); //展开所有树节点
+            }else if(id === 'btn8') {
+                console.log(treeTable.getTreeOptions()); //获取表格配置
+            }else if(id === 'btn9'){
+                treeTable.reload(); //表格树进行reload
+            }else {
+                treeTable.delCheckedRows(); //删除选中行
+            }
+        });
+    });
+</script>
+</html>

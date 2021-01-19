@@ -1,0 +1,78 @@
+<style type="text/css">
+    .myData .layui-form-item{
+        margin: 20px 100px 10px 45px;
+    }
+    .myData .layui-form-label{
+        width: 80px;
+    }
+</style>
+<form class="layui-form myData" action="save" method="post" lay-filter="stuform">
+    <input type="hidden" name="id" data-th-value="${model.id}" />
+ 
+	<div class="layui-form-item">
+        <label class="layui-form-label">上级菜单：</label>
+        <div class="layui-input-block">
+            <input type="text" name="parentId" id="tree" lay-filter="tree" class="layui-input" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">菜单名称：</label>
+        <div class="layui-input-block">
+            <input type="text" name="name" lay-verify="required" th:value="${model.name}" class="layui-input" />
+        </div>
+    </div>
+    <div class="layui-form-item" >
+        <label class="layui-form-label">菜单地址：</label>
+        <div class="layui-input-block">
+            <input type="text" name="url" th:value="${model.url}" class="layui-input" />
+        </div>
+    </div>
+    <div class="layui-form-item" >
+        <label class="layui-form-label">图标：</label>
+        <div class="layui-input-block">
+            <input type="text" name="icon" th:value="${model.icon}" class="layui-input" />
+        </div>
+    </div>
+    <div class="layui-form-item" >
+        <label class="layui-form-label">排序：</label>
+        <div class="layui-input-block">
+            <input type="text" name="idx" th:value="${model.idx}" class="layui-input" />
+        </div>
+    </div>
+</form>
+ 
+<script th:inline="javascript">
+	layui.use(["treeSelect", "form"], function () {
+		var form = layui.form;
+        form.render('select');
+	    var treeSelect = layui.treeSelect;
+	    treeSelect.render({
+	        // 选择器
+	        elem: '#tree',
+	        // 数据
+	        data: 'menu/treeSelect?id='+[[${model.id==null ? 0 : model.id}]],
+	        // 异步加载方式：get/post，默认get
+	        type: 'post',
+	        // 占位符
+	        placeholder: '上级菜单',
+	        // 是否开启搜索功能：true/false，默认false
+	        search: true,
+	        // 一些可定制的样式
+	        style: {
+	            folder: {
+	                enable: true
+	            },
+	            line: {
+	                enable: true
+	            }
+	        },
+	        // 加载完成后的回调函数
+	        success: function (d) {
+				// 选中节点，根据id筛选
+	            treeSelect.checkNode('tree', [[${model.parent == null? parentId: model.parent.id}]]);
+				// 刷新树结构
+	           	treeSelect.refresh('tree');
+	        }
+	    });
+	});
+</script>
