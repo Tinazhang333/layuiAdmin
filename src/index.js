@@ -13,7 +13,7 @@ layui.extend({
 	admin: 'lib/admin', //核心模块
 	commonReq: 'lib/commonReq',
 	view: 'lib/view', //核心模块
-	treeTable: '../../start/layui/tableTree/js/treeTable'
+	treeTable: '../../start/treeTable/treeTable'
 
 
 }).define(['setter', 'admin', 'commonReq'], function(exports) {
@@ -23,7 +23,6 @@ layui.extend({
 		tabsPage = admin.tabsPage,
 		view = layui.view,
 		commonReq = layui.commonReq
-		// ,treetable = layui.treetable
 		,
 		treeTable = layui.treeTable
 		//根据路由渲染页面

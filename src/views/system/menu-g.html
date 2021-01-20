@@ -38,14 +38,13 @@
 			<table class="layui-hide" id="menu" lay-filter="menu"></table>
 			<script type="text/html" id="zizeng">
 				{{d.LAY_TABLE_INDEX+1}}
-							</script>
+			</script>
 
 
 			<script type="text/html" id="table-useradmin-admin">
 				<a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
-							 
-						     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
-						</script>
+				<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+			</script>
 
 			<script type="text/html" id="toolbarDemo">
 				<div class="layui-btn-group">
@@ -63,183 +62,167 @@
 </div>
 
 <script>
-	layui.use(['treeTable', 'layer', 'admin','table'], function() {
-		var $ = layui.$,
-			admin = layui.admin,
-			view = layui.view,
-			table = layui.table,
-			treeTable= layui.treeTable,
-			setter = layui.setter,
+	layui.use(['layer', 'util', 'treeTable'], function() {
+		//var table = layui.table
+		//, form = layui.form;
+		var $ = layui.jquery;
+		var layer = layui.layer;
+		var util = layui.util;
+		var treeTable = layui.treeTable,
 			form = layui.form;
-		form.render(null, 'layadmin-useradmin-formlist');
 
-		//渲染表格
-		var renderTable = function() {
-			// layer.load(2); //加载层
-			treeTable.render({
-				height: 'full-160',
-				id: "menu",
-				treeColIndex: 1, //树形组件显示在第几列
-				treeSpid: '0', //最上级的父级id
-				treeIdName: 'id', //id 字段的名称
-				treePidName: 'parentId', //父级节点字段
-				treeDefaultClose: false, //是否默认折叠
-				treeLinkage: false, //父级展开时是否自动展开所有子级
-				elem: '#menu',
-				url: "/table-tree",
-				toolbar: '#toolbarDemo',
-				page: false,
-				cols: [
-					[{
-							type: 'radio'
-						},
-						{
-							field: 'id',
-							title: 'ID'
-						},
-						{
-							field: 'title',
-							title: '名称'
-						}
-						
+		// 渲染表格
+		var insTb = treeTable.render({
+			elem: '#menu',
+			url: "/sysuser/sys_permission/findMenuTree",
+			toolbar: 'default',
+			height: 'full-200',
+			method: 'post',
+			tree: {
+				iconIndex: 2,
+				isPidData: true,
+				idName: 'permissionId', //父ID
+				pidName: 'parentId', //子ID
+				openName: 'open', // 是否默认展开的字段名
+				//public bool open { get; set; }open字段是bool类型
+			},
+			defaultToolbar: ['filter', 'print', 'exports'],
+			cols: [
+				[{
+						type: 'checkbox',
+						fixed: 'left'
+					}, {
+						field: 'permissionId',
+						title: 'ID',
+						fixed: 'left',
+						unresize: true,
+						sort: true,
+						width:5
+					}, {
+						field: 'permissionName',
+						title: '菜单名称',
+						edit: 'text'
+					}, {
+						field: 'parentName',
+						title: '父菜单名称'
+					}
+					// , { field: 'remark', title: '备注', edit: 'text' }
+					, {
+						field: 'href',
+						title: '菜单路径'
+					}, {
+						field: 'sort',
+						title: '菜单排序',
+						width:5
+					}, {
+						field: 'css',
+						title: '菜单图标'
+					}
+					/*  , { field: 'Isfather', title: '是否父菜单'} */
+				
+					, { fixed: 'right', title: '操作', toolbar: '#table-useradmin-admin' } 
+				]
+			],
+			style: 'margin-top:0;'
+		});
 
-					]
-				],
-				//数据渲染完的回调
-				done: function(res) {
-					// alert(111);
-					//关闭加载
-					layer.closeAll('loading');
+		//监听状态操作
+		form.on('switch(ShowDemo)', function(data) {
+			var swithcData = data;
+			var id = data.value; // 获取要修改的ID
+			var IsShow = this.checked ? '启用' : '停用'; // 当前状态值
+			$.ajax({
+				type: 'post',
+				url: '/api/menuApi/postUpdMenu',
+				data: {
+					"id": id,
+					"IsShow": IsShow
+				},
+				error: function(data) {
+					console.log(data);
+					layer.msg('数据异常，操作失败！');
+				},
+				// 修改失败，请填写对应的参数
+				success: function(data) {
+					layer.alert("操作成功", {
+						icon: 6
+					});
+					//window.location.reload();
 				}
+			});
+		});
 
-			})
-		}
-		renderTable();
-
-		treeTable.on('tool(tableEvent)', function(obj) {
-			var field=obj.field; //单元格字段
-			var value =obj.value;//修改后的值
-			var data =obj.data;//当前行数据
-			var event =obj.event;//当前行单元格事件
-			if (obj.event === 'add') {
-				// var parentId = data.length == 0 ? 0 : data[0].id;
-				// $.get('menu/edit', {
-				// 	parentId: parentId
-				// }, function(data) {
-				// 	layer.open({
-				// 		type: 1,
-				// 		title: '新增',
-				// 		area: ['530px'],
-				// 		content: data,
-				// 		btn: ['提交', '退出'],
-				// 		yes: function() {},
-				// 		success: function(layero, index) {
-				// 			layui.use('form', function() {
-				// 				var form = layui.form;
-				// 				layero.addClass('layui-form');
-				// 				var submitBtn = layero.find('.layui-layer-btn0');
-				// 				submitBtn.attr('lay-filter', 'formVerify').attr('lay-submit', '');
-				// 				layero.keydown(function(e) {
-				// 					if (e.keyCode == 13) {
-				// 						submitBtn.click();
-				// 					}
-				// 				});
-
-				// 				form.on('submit(formVerify)', function(data) {
-				// 					$.post('menu/save', data.field, function(result) {
-				// 						if (result.success) {
-				// 							layer.close(index);
-				// 							//刷新，重新渲染表格
-				// 							renderTable();
-				// 						}
-				// 						layer.msg(result.msg, {
-				// 							offset: 'rb'
-				// 						});
-				// 					});
-				// 					return false;
-				// 				});
-				// 			});
-				// 		}
-				// 	})
-				// })
-				
-				
-			} else if (obj.event === 'updata') {
-				
-				// if (data.length != 1) {
-				// 	layer.msg("请选择一行进行编辑", {
-				// 		offset: 'rb'
-				// 	});
-				// } else {
-				// 	var id = data[0].id;
-				// 	$.get('menu/edit', {
-				// 		id: id
-				// 	}, function(data) {
-				// 		layer.open({
-				// 			type: 1,
-				// 			title: '修改',
-				// 			area: ['530px'],
-				// 			content: data,
-				// 			btn: ['提交', '退出'],
-				// 			yes: function() {},
-				// 			success: function(layero, index) {
-				// 				layui.use('form', function() {
-				// 					var form = layui.form;
-				// 					layero.addClass('layui-form');
-				// 					var submitBtn = layero.find('.layui-layer-btn0');
-				// 					submitBtn.attr('lay-filter', 'formVerify').attr('lay-submit', '');
-				// 					layero.keydown(function(e) {
-				// 						if (e.keyCode == 13) {
-				// 							submitBtn.click();
-				// 						}
-				// 					});
-
-				// 					form.on('submit(formVerify)', function(data) {
-				// 						$.post('menu/save', data.field, function(result) {
-				// 							if (result.success) {
-				// 								layer.close(index);
-				// 								//刷新，重新渲染表格
-				// 								renderTable();
-				// 							}
-				// 							layer.msg(result.msg, {
-				// 								offset: 'rb'
-				// 							});
-				// 						});
-				// 						return false;
-				// 					});
-				// 				});
-				// 			}
-				// 		})
-				// 	})
-				// }
-			} else if (obj.event === "delete") {
-				// if (data.length != 1) {
-				// 	layer.msg("请选择一行进行删除", {
-				// 		offset: 'rb'
-				// 	});
-				// } else {
-				// 	var id = data[0].id;
-				// 	layer.confirm('确定删除选定行的数据吗?', function(index) {
-				// 		$.post('menu/delete', {
-				// 			id: id
-				// 		}, function(result) {
-				// 			if (result.success) {
-				// 				layer.close(index);
-				// 				renderTable();
-				// 			}
-				// 			layer.msg(result.msg, {
-				// 				offset: 'rb'
-				// 			});
-				// 		});
-				// 	});
-				// }
-			} else if (obj.event === "refresh") {
-				// renderTable();
-				
+		//监听行工具事件
+		treeTable.on('tool(menu)', function(obj) {
+			var data = obj.data;
+			//console.log(obj)
+			if (obj.event === 'del') {
+				layer.confirm('真的删除行么', function(index) {
+					//var id = data['id'];
+					var param = {
+						id: data['id']
+					};
+					$.ajax({
+						type: 'post',
+						url: '/api/menuApi/postDeleMenu',
+						async: false,
+						data: param,
+						success: function(data) {}
+					})
+					layer.msg('已删除数据!', {
+						icon: 1,
+						time: 1000
+					});
+					setTimeout('window.location.reload()', 1000);
+					//alert(id);
+				});
+			} else if (obj.event === 'edit') {
+				//xadmin.open('修改用户', '/User/UserUpd?id=' + data['id'], 600, 400);//flag=edit&id=
+				layer.open({
+					type: 2,
+					title: "修改菜单",
+					shadeClose: true,
+					shade: 0.5,
+					area: ['600px', '600px'],
+					content: ['/menu/menuOper?flag=edit&id=' + data['id'], 'no'],
+					//end: function () { location.reload(); }
+				})
 			}
+		});
 
+		// 搜索
+		$('#search').click(function() {
+			var keywords = $('#demoReload').val();
+			if (keywords) {
+				insTb.filterData(keywords);
+			} else {
+				insTb.clearFilter();
+			}
+			return false;
+		});
+
+		// 全部展开
+		$('#btnExpandAll').click(function() {
+			insTb.expandAll();
+		});
+
+		// 全部折叠
+		$('#btnFoldAll').click(function() {
+			insTb.foldAll();
+		});
+
+		$("#OpenMenuAdd").click(function() {
+			//alert(1);
+			//var url = "{:url('/menu/menuAdd')}";
+			layer.open({
+				type: 2,
+				title: "添加菜单",
+				shadeClose: true,
+				shade: 0.5,
+				area: ['600px', '600px'],
+				content: ['/menu/menuOper?flag=add', 'no'],
+				//end: function () { location.reload(); }
+			})
 		})
-
-
 	});
 </script>
